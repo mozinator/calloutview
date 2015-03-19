@@ -47,7 +47,7 @@ NSTimeInterval kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
     // if you haven't compiled SMClassicCalloutView into your app, then we can't possibly create an instance of it!
     if (!NSClassFromString(@"SMClassicCalloutView"))
         return [SMCalloutView new];
-    
+
     // ok we have both - so choose the best one based on current platform
     if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         return [SMCalloutView new]; // iOS 7+
@@ -93,12 +93,12 @@ NSTimeInterval kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
     else {
         if (!self.titleLabel) {
             // create a default titleView
-            self.titleLabel = [UILabel new];
-            self.titleLabel.$height = TITLE_HEIGHT;
-            self.titleLabel.opaque = NO;
-            self.titleLabel.backgroundColor = [UIColor clearColor];
-            self.titleLabel.font = [UIFont systemFontOfSize:17];
-            self.titleLabel.textColor = [UIColor blackColor];
+//            self.titleLabel = [UILabel new];
+//            self.titleLabel.$height = TITLE_HEIGHT;
+//            self.titleLabel.opaque = NO;
+//            self.titleLabel.backgroundColor = [UIColor clearColor];
+//            self.titleLabel.font = [UIFont systemFontOfSize:17];
+//            self.titleLabel.textColor = [UIColor blackColor];
         }
         return self.titleLabel;
     }
@@ -111,12 +111,12 @@ NSTimeInterval kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
     else {
         if (!self.subtitleLabel) {
             // create a default subtitleView
-            self.subtitleLabel = [UILabel new];
-            self.subtitleLabel.$height = SUBTITLE_HEIGHT;
-            self.subtitleLabel.opaque = NO;
-            self.subtitleLabel.backgroundColor = [UIColor clearColor];
-            self.subtitleLabel.font = [UIFont systemFontOfSize:12];
-            self.subtitleLabel.textColor = [UIColor blackColor];
+//            self.subtitleLabel = [UILabel new];
+//            self.subtitleLabel.$height = SUBTITLE_HEIGHT;
+//            self.subtitleLabel.opaque = NO;
+//            self.subtitleLabel.backgroundColor = [UIColor clearColor];
+//            self.subtitleLabel.font = [UIFont systemFontOfSize:12];
+//            self.subtitleLabel.textColor = [UIColor blackColor];
         }
         return self.subtitleLabel;
     }
@@ -136,10 +136,10 @@ NSTimeInterval kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
     [self.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     [self.containerView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     [self setNeedsDisplay];
-    
+
     [self addSubview:self.backgroundView];
     [self addSubview:self.containerView];
-    
+
     if (self.contentView) {
         [self.containerView addSubview:self.contentView];
     }
@@ -204,30 +204,30 @@ NSTimeInterval kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
-    
+
     // calculate how much non-negotiable space we need to reserve for margin and accessories
     CGFloat margin = self.innerContentMarginLeft + self.innerContentMarginRight;
-    
+
     // how much room is left for text?
     CGFloat availableWidthForText = size.width - margin - 1;
-    
+
     // no room for text? then we'll have to squeeze into the given size somehow.
     if (availableWidthForText < 0)
         availableWidthForText = 0;
-    
+
     CGSize preferredTitleSize = [self.titleViewOrDefault sizeThatFits:CGSizeMake(availableWidthForText, TITLE_HEIGHT)];
     CGSize preferredSubtitleSize = [self.subtitleViewOrDefault sizeThatFits:CGSizeMake(availableWidthForText, SUBTITLE_HEIGHT)];
-    
+
     // total width we'd like
     CGFloat preferredWidth;
-    
+
     if (self.contentView) {
-        
+
         // if we have a content view, then take our preferred size directly from that
         preferredWidth = self.contentView.$width + margin;
     }
     else if (preferredTitleSize.width >= 0.000001 || preferredSubtitleSize.width >= 0.000001) {
-        
+
         // if we have a title or subtitle, then our assumed margins are valid, and we can apply them
         preferredWidth = fmaxf(preferredTitleSize.width, preferredSubtitleSize.width) + margin;
     }
@@ -235,14 +235,14 @@ NSTimeInterval kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
         // ok we have no title or subtitle to speak of. In this case, the system callout would actually not display
         // at all! But we can handle it.
         preferredWidth = self.leftAccessoryView.$width + self.rightAccessoryView.$width + self.leftAccessoryHorizontalMargin + self.rightAccessoryHorizontalMargin;
-        
+
         if (self.leftAccessoryView && self.rightAccessoryView)
             preferredWidth += BETWEEN_ACCESSORIES_MARGIN;
     }
-    
+
     // ensure we're big enough to fit our graphics!
     preferredWidth = fmaxf(preferredWidth, CALLOUT_MIN_WIDTH);
-    
+
     // ask to be smaller if we have space, otherwise we'll fit into what we have by truncating the title/subtitle.
     return CGSizeMake(fminf(preferredWidth, size.width), self.calloutHeight);
 }
@@ -268,7 +268,7 @@ NSTimeInterval kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
 
     // Sanity check: dismiss this callout immediately if it's displayed somewhere
     if (self.layer.superlayer) [self dismissCalloutAnimated:NO];
-    
+
     // cancel any presenting animation that may be in progress
     [self.layer removeAnimationForKey:@"present"];
 
@@ -277,108 +277,108 @@ NSTimeInterval kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
 
     // apply our edge constraints
     constrainedRect = UIEdgeInsetsInsetRect(constrainedRect, self.constrainedInsets);
-    
+
     constrainedRect = CGRectInset(constrainedRect, COMFORTABLE_MARGIN, COMFORTABLE_MARGIN);
-    
+
     // form our subviews based on our content set so far
     [self rebuildSubviews];
-    
+
     // apply title/subtitle (if present
     self.titleLabel.text = self.title;
     self.subtitleLabel.text = self.subtitle;
-    
+
     // size the callout to fit the width constraint as best as possible
     self.$size = [self sizeThatFits:CGSizeMake(constrainedRect.size.width, self.calloutHeight)];
-    
+
     // how much room do we have in the constraint box, both above and below our target rect?
     CGFloat topSpace = CGRectGetMinY(rect) - CGRectGetMinY(constrainedRect);
     CGFloat bottomSpace = CGRectGetMaxY(constrainedRect) - CGRectGetMaxY(rect);
-    
+
     // we prefer to point our arrow down.
     SMCalloutArrowDirection bestDirection = SMCalloutArrowDirectionDown;
-    
+
     // we'll point it up though if that's the only option you gave us.
     if (self.permittedArrowDirection == SMCalloutArrowDirectionUp)
         bestDirection = SMCalloutArrowDirectionUp;
-    
+
     // or, if we don't have enough space on the top and have more space on the bottom, and you
     // gave us a choice, then pointing up is the better option.
     if (self.permittedArrowDirection == SMCalloutArrowDirectionAny && topSpace < self.calloutHeight && bottomSpace > topSpace)
         bestDirection = SMCalloutArrowDirectionUp;
-    
+
     self.currentArrowDirection = bestDirection;
-    
+
     // we want to point directly at the horizontal center of the given rect. calculate our "anchor point" in terms of our
     // target view's coordinate system. make sure to offset the anchor point as requested if necessary.
     CGFloat anchorX = self.calloutOffset.x + CGRectGetMidX(rect);
     CGFloat anchorY = self.calloutOffset.y + (bestDirection == SMCalloutArrowDirectionDown ? CGRectGetMinY(rect) : CGRectGetMaxY(rect));
-    
+
     // we prefer to sit centered directly above our anchor
     CGFloat calloutX = roundf(anchorX - self.$width / 2);
-    
+
     // but not if it's going to get too close to the edge of our constraints
     if (calloutX < constrainedRect.origin.x)
         calloutX = constrainedRect.origin.x;
 
     if (calloutX > constrainedRect.origin.x+constrainedRect.size.width-self.$width)
         calloutX = constrainedRect.origin.x+constrainedRect.size.width-self.$width;
-    
+
     // what's the farthest to the left and right that we could point to, given our background image constraints?
     CGFloat minPointX = calloutX + ANCHOR_MARGIN;
     CGFloat maxPointX = calloutX + self.$width - ANCHOR_MARGIN;
-    
+
     // we may need to scoot over to the left or right to point at the correct spot
     CGFloat adjustX = 0;
     if (anchorX < minPointX) adjustX = anchorX - minPointX;
     if (anchorX > maxPointX) adjustX = anchorX - maxPointX;
-    
+
     // add the callout to the given layer (or view if possible, to receive touch events)
     if (view)
         [view addSubview:self];
     else
         [layer addSublayer:self.layer];
-    
+
     CGPoint calloutOrigin = {
         .x = calloutX + adjustX,
         .y = bestDirection == SMCalloutArrowDirectionDown ? (anchorY - self.calloutHeight) : anchorY
     };
-    
+
     self.$origin = calloutOrigin;
-    
+
     // now set the *actual* anchor point for our layer so that our "popup" animation starts from this point.
     CGPoint anchorPoint = [layer convertPoint:CGPointMake(anchorX, anchorY) toLayer:self.layer];
-    
+
     // pass on the anchor point to our background view so it knows where to draw the arrow
     self.backgroundView.arrowPoint = anchorPoint;
-    
+
     // adjust it to unit coordinates for the actual layer.anchorPoint property
     anchorPoint.x /= self.$width;
     anchorPoint.y /= self.$height;
     self.layer.anchorPoint = anchorPoint;
-    
+
     // setting the anchor point moves the view a bit, so we need to reset
     self.$origin = calloutOrigin;
-    
+
     // make sure our frame is not on half-pixels or else we may be blurry!
     CGFloat scale = [UIScreen mainScreen].scale;
     self.$x = floorf(self.$x*scale)/scale;
     self.$y = floorf(self.$y*scale)/scale;
-    
+
     // layout now so we can immediately start animating to the final position if needed
     [self setNeedsLayout];
     [self layoutIfNeeded];
-    
+
     // if we're outside the bounds of our constraint rect, we'll give our delegate an opportunity to shift us into position.
     // consider both our size and the size of our target rect (which we'll assume to be the size of the content you want to scroll into view.
     CGRect contentRect = CGRectUnion(self.frame, rect);
     CGSize offset = [self offsetToContainRect:contentRect inRect:constrainedRect];
-    
+
     NSTimeInterval delay = 0;
     self.popupCancelled = NO; // reset this before calling our delegate below
-    
+
     if ([self.delegate respondsToSelector:@selector(calloutView:delayForRepositionWithSize:)] && !CGSizeEqualToSize(offset, CGSizeZero))
         delay = [self.delegate calloutView:(id)self delayForRepositionWithSize:offset];
-    
+
     // there's a chance that user code in the delegate method may have called -dismissCalloutAnimated to cancel things; if that
     // happened then we need to bail!
     if (self.popupCancelled) return;
@@ -388,27 +388,27 @@ NSTimeInterval kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
 
     // if we need to delay, we don't want to be visible while we're delaying, so hide us in preparation for our popup
     self.hidden = YES;
-    
+
     // create the appropriate animation, even if we're not animated
     CAAnimation *animation = [self animationWithType:self.presentAnimation presenting:YES];
-    
+
     // nuke the duration if no animation requested - we'll still need to "run" the animation to get delays and callbacks
     if (!animated)
         animation.duration = 0.0000001; // can't be zero or the animation won't "run"
-    
+
     animation.beginTime = CACurrentMediaTime() + delay;
     animation.delegate = self;
-    
+
     [self.layer addAnimation:animation forKey:@"present"];
 }
 
 - (void)animationDidStart:(CAAnimation *)anim {
     BOOL presenting = [[anim valueForKey:@"presenting"] boolValue];
-    
+
     if (presenting) {
         if ([_delegate respondsToSelector:@selector(calloutViewWillAppear:)])
             [_delegate calloutViewWillAppear:(id)self];
-        
+
         // ok, animation is on, let's make ourselves visible!
         self.hidden = NO;
     }
@@ -426,23 +426,23 @@ NSTimeInterval kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
             [_delegate calloutViewDidAppear:(id)self];
     }
     else if (!presenting && finished) {
-        
+
         [self removeFromParent];
         [self.layer removeAnimationForKey:@"dismiss"];
-        
+
         if ([_delegate respondsToSelector:@selector(calloutViewDidDisappear:)])
             [_delegate calloutViewDidDisappear:(id)self];
     }
 }
 
 - (void)dismissCalloutAnimated:(BOOL)animated {
-    
+
     // cancel all animations that may be in progress
     [self.layer removeAnimationForKey:@"present"];
     [self.layer removeAnimationForKey:@"dismiss"];
-    
+
     self.popupCancelled = YES;
-    
+
     if (animated) {
         CAAnimation *animation = [self animationWithType:self.dismissAnimation presenting:NO];
         animation.delegate = self;
@@ -467,15 +467,15 @@ NSTimeInterval kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
 
 - (CAAnimation *)animationWithType:(SMCalloutAnimation)type presenting:(BOOL)presenting {
     CAAnimation *animation = nil;
-    
+
     if (type == SMCalloutAnimationBounce) {
-        
+
         CABasicAnimation *fade = [CABasicAnimation animationWithKeyPath:@"opacity"];
         fade.duration = 0.23;
         fade.fromValue = presenting ? @0.0 : @1.0;
         fade.toValue = presenting ? @1.0 : @0.0;
         fade.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-        
+
         CABasicAnimation *bounce = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
         bounce.duration = 0.23;
         bounce.fromValue = presenting ? @0.7 : @1.0;
@@ -502,37 +502,37 @@ NSTimeInterval kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
         stretch.toValue = presenting ? @1.0 : @0.0;
         animation = stretch;
     }
-    
+
     // CAAnimation is KVC compliant, so we can store whether we're presenting for lookup in our delegate methods
     [animation setValue:@(presenting) forKey:@"presenting"];
-    
+
     animation.fillMode = kCAFillModeForwards;
     animation.removedOnCompletion = NO;
     return animation;
 }
 
 - (void)layoutSubviews {
-    
+
     self.containerView.frame = self.bounds;
     self.backgroundView.frame = self.bounds;
-    
+
     // if we're pointing up, we'll need to push almost everything down a bit
     CGFloat dy = self.currentArrowDirection == SMCalloutArrowDirectionUp ? TOP_ANCHOR_MARGIN : 0;
-    
+
     self.titleViewOrDefault.$x = self.innerContentMarginLeft;
     self.titleViewOrDefault.$y = (self.subtitleView || self.subtitle.length ? TITLE_SUB_TOP : TITLE_TOP) + dy;
     self.titleViewOrDefault.$width = self.$width - self.innerContentMarginLeft - self.innerContentMarginRight;
-    
+
     self.subtitleViewOrDefault.$x = self.titleViewOrDefault.$x;
     self.subtitleViewOrDefault.$y = SUBTITLE_TOP + dy;
     self.subtitleViewOrDefault.$width = self.titleViewOrDefault.$width;
-    
+
     self.leftAccessoryView.$x = self.leftAccessoryHorizontalMargin;
     self.leftAccessoryView.$y = self.leftAccessoryVerticalMargin + dy;
-    
+
     self.rightAccessoryView.$x = self.$width-self.rightAccessoryHorizontalMargin-self.rightAccessoryView.$width;
     self.rightAccessoryView.$y = self.rightAccessoryVerticalMargin + dy;
-    
+
     if (self.contentView) {
         self.contentView.$x = self.innerContentMarginLeft;
         self.contentView.$y = CONTENT_VIEW_MARGIN + dy;
@@ -564,25 +564,25 @@ static UIImage *blackArrowImage = nil, *whiteArrowImage = nil, *grayArrowImage =
 
         // Here we're mimicking the very particular (and odd) structure of the system callout view.
         // The hierarchy and view/layer values were discovered by inspecting map kit using Reveal.app
-        
+
         self.containerView = [UIView new];
         self.containerView.backgroundColor = [UIColor whiteColor];
         self.containerView.alpha = 0.96;
         self.containerView.layer.cornerRadius = 8;
         self.containerView.layer.shadowRadius = 30;
         self.containerView.layer.shadowOpacity = 0.1;
-        
+
         self.containerBorderView = [UIView new];
         self.containerBorderView.layer.borderColor = [UIColor colorWithWhite:0 alpha:0.1].CGColor;
         self.containerBorderView.layer.borderWidth = 0.5;
         self.containerBorderView.layer.cornerRadius = 8.5;
-        
+
         if (!blackArrowImage) {
             blackArrowImage = [SMCalloutBackgroundView embeddedImageNamed:@"CalloutArrow"];
             whiteArrowImage = [self image:blackArrowImage withColor:[UIColor whiteColor]];
             grayArrowImage = [self image:blackArrowImage withColor:[UIColor colorWithWhite:0.85 alpha:1]];
         }
-        
+
         self.arrowView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, blackArrowImage.size.width, blackArrowImage.size.height)];
         self.arrowView.alpha = 0.96;
         self.arrowImageView = [[UIImageView alloc] initWithImage:whiteArrowImage];
@@ -591,7 +591,7 @@ static UIImage *blackArrowImage = nil, *whiteArrowImage = nil, *grayArrowImage =
         self.arrowBorderView = [[UIImageView alloc] initWithImage:blackArrowImage];
         self.arrowBorderView.alpha = 0.1;
         self.arrowBorderView.$y = 0.5;
-        
+
         [self addSubview:self.containerView];
         [self.containerView addSubview:self.containerBorderView];
         [self addSubview:self.arrowView];
@@ -616,7 +616,7 @@ static UIImage *blackArrowImage = nil, *whiteArrowImage = nil, *grayArrowImage =
 }
 
 - (UIImage *)image:(UIImage *)image withColor:(UIColor *)color {
-    
+
     UIGraphicsBeginImageContextWithOptions(image.size, NO, 0);
     CGRect imageRect = (CGRect){.size=image.size};
     CGContextRef c = UIGraphicsGetCurrentContext();
@@ -631,7 +631,7 @@ static UIImage *blackArrowImage = nil, *whiteArrowImage = nil, *grayArrowImage =
 }
 
 - (void)layoutSubviews {
-    
+
     BOOL pointingUp = self.arrowPoint.y < self.$height/2;
 
     // if we're pointing up, we'll need to push almost everything down a bit
@@ -641,7 +641,7 @@ static UIImage *blackArrowImage = nil, *whiteArrowImage = nil, *grayArrowImage =
     self.containerBorderView.frame = CGRectInset(self.containerView.bounds, -0.5, -0.5);
 
     self.arrowView.$x = roundf(self.arrowPoint.x - self.arrowView.$width / 2);
-    
+
     if (pointingUp) {
         self.arrowView.$y = 1;
         self.arrowView.transform = CGAffineTransformMakeRotation(M_PI);
@@ -655,12 +655,12 @@ static UIImage *blackArrowImage = nil, *whiteArrowImage = nil, *grayArrowImage =
 - (CALayer *)contentMask {
 
     UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 0);
-    
+
     [self.layer renderInContext:UIGraphicsGetCurrentContext()];
-    
+
     UIImage *maskImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    
+
     CALayer *layer = [CALayer layer];
     layer.frame = self.bounds;
     layer.contents = (id)maskImage.CGImage;
@@ -713,15 +713,15 @@ static UIImage *blackArrowImage = nil, *whiteArrowImage = nil, *grayArrowImage =
         99, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
         41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 99, 99, 99, 99, 99
     };
-    
+
     NSData *inputData = [string dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
     long long inputLength = [inputData length];
     const unsigned char *inputBytes = [inputData bytes];
-    
+
     long long maxOutputLength = (inputLength / 4 + 1) * 3;
     NSMutableData *outputData = [NSMutableData dataWithLength:(NSUInteger)maxOutputLength];
     unsigned char *outputBytes = (unsigned char *)[outputData mutableBytes];
-    
+
     int accumulator = 0;
     long long outputLength = 0;
     unsigned char accumulated[] = {0, 0, 0, 0};
@@ -737,12 +737,12 @@ static UIImage *blackArrowImage = nil, *whiteArrowImage = nil, *grayArrowImage =
             accumulator = (accumulator + 1) % 4;
         }
     }
-    
+
     //handle left-over data
     if (accumulator > 0) outputBytes[outputLength] = (accumulated[0] << 2) | (accumulated[1] >> 4);
     if (accumulator > 1) outputBytes[++outputLength] = (accumulated[1] << 4) | (accumulated[2] >> 2);
     if (accumulator > 2) outputLength++;
-    
+
     //truncate data to match actual output length
     outputData.length = (NSUInteger)outputLength;
     return outputLength? outputData: nil;
@@ -754,20 +754,20 @@ static UIImage *blackArrowImage = nil, *whiteArrowImage = nil, *grayArrowImage =
         name = [name stringByAppendingString:@"$2x"];
         screenScale = 2.0;
     }
-    
+
     SEL selector = NSSelectorFromString(name);
-    
+
     if (![(id)self respondsToSelector:selector]) {
         NSLog(@"Could not find an embedded image. Ensure that you've added a class-level method named +%@", name);
         return nil;
     }
-    
+
     // We need to hush the compiler here - but we know what we're doing!
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     NSString *base64String = [(id)self performSelector:selector];
     #pragma clang diagnostic pop
-    
+
     UIImage *rawImage = [UIImage imageWithData:[self dataWithBase64EncodedString:base64String]];
     return [UIImage imageWithCGImage:rawImage.CGImage scale:screenScale orientation:UIImageOrientationUp];
 }
